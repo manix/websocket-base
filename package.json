@@ -1,19 +1,23 @@
 {
-  "name": "websocket-station",
+  "name": "websocket-base",
   "version": "1.0.0",
-  "description": "A websocket framework.",
-  "main": "server.js",
+  "description": "A websocket server foundation.",
+  "main": "lib/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node example.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/manix/websocket-station.git"
+    "url": "git+https://github.com/manix/websocket-base.git"
   },
   "author": "Manix <admin@manix.info>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/manix/websocket-station/issues"
   },
-  "homepage": "https://github.com/manix/websocket-station#readme"
+  "homepage": "https://github.com/manix/websocket-base#readme",
+  "dependencies": {
+    "ws": "^2.2.2"
+  }
 }
