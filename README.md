@@ -104,3 +104,8 @@ Handling the message sent from the example above, displaying the body in an aler
           throw "Invalid message.";
         }
       }
+
+
+#### Quickstart
+
+You can clone the [quickstart example](https://github.com/manix/websocket-base-quickstart) to have a look at a working application.
