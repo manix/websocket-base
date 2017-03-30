@@ -1,5 +1,4 @@
 var ws = require("ws");
-var http = require("http");
 var users = require("./user-manager");
 var log = require("./simple-logger").log;
 var clients = require("./client-manager");
@@ -9,6 +8,11 @@ module.exports = {
   users: users,
   clients: clients,
   Message: Message,
+  broadcast: function(message) {
+    for (var u in users.all()) {
+      users.get(u).send(message);
+    }
+  },
   run: function(options) {
     var base = this;
 

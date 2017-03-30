@@ -80,8 +80,7 @@ The `User` class has a neat method called `send` which you can use to send a mes
 #### Receiving messages
 
 * **On the server**
-Recieved messages are handled by actions on the server. An action is simply a function that takes in two parameters - a connection the message came from and the message itself. Actions must be declared as modules, so you must tell Base where to look for these modules using the `actions.path` property when calling `base.run`
-An example action that replies to the message `["hello", "world"]`.
+Recieved messages are handled by actions on the server. An action is simply a function that takes in two parameters - a connection the message came from and the message itself. Actions must be declared as modules, so you must tell Base where to look for these modules using the `actions.path` property when calling `base.run`. An example action that replies to the message `["hello", "world"]`.
 
       // file must be named "hello" and reside in the actions directory
       module.exports = function(connection, message) {

@@ -51,7 +51,7 @@ class User {
   send(message) {
     for (var i in this.connections) {
       logger.log("system", "Sending message to " + this.connections[i].id);
-      this.connections[i].send(message.toString());
+      this.connections[i].send(message);
     }
   }
 
