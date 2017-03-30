@@ -41,7 +41,7 @@ module.exports = {
           throw "Can not bind client " + connection.id + " to a user - bad readyState.";
         }
 
-        log("system", "Client " + connection.id + " authenticated with id " + connection.id);
+        log("system", "Client " + connection.id + " authenticated with id " + user.id);
 
         users.register(user, connection);
 
