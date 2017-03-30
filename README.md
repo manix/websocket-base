@@ -65,13 +65,13 @@ Where `command` is the action that must be executed on the recipient's side, `bo
 * **From the server**
 The `User` class has a neat method called `send` which you can use to send a message to all connections from this user. Occasionally you will need to send a message to a specific connection, then you can call `send` on the particular connection.
 
-        var message = new Message(<command>, <body>);
+      var message = new base.Message(<command>, <body>);
 
-        // to a user
-        base.users.get(<id>).send(message);
+      // to a user
+      base.users.get(<id>).send(message);
 
-        // to a connection
-        base.users.get(<id>).connections[<connection-id>].send(message.toString());
+      // to a connection
+      base.users.get(<id>).connections[<connection-id>].send(message);
 
 * **From the client**
 
@@ -85,7 +85,7 @@ An example action that replies to the message `["hello", "world"]`.
 
       // file must be named "hello" and reside in the actions directory
       module.exports = function(connection, message) {
-          connection.send(message.respond("alert", "Hello, " + message.body + "!").toString());
+          connection.send(message.respond("alert", "Hello, " + message.body + "!"));
       }
 
 * **On the client**
