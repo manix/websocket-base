@@ -12,6 +12,9 @@ Base relies on `ws`, arguably the fastest websocket implementation for javascrip
 
     base.run({
       port: <port>,
+      http: function(request, response) {
+        // your usual http request handler
+      },
       authenticate: function(connection, register) {
         // do your magic to get a user object and then
         register(connection, user);
@@ -24,7 +27,7 @@ Base relies on `ws`, arguably the fastest websocket implementation for javascrip
       }
     });
 
-By default, Base does not allow users to send messages before they have been authenticated and the authenticate callable is where the magic happens. It gets called whenever a new connection is made to the websocket server. You get a [connection](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket) instance as the first parameter and a `register` callable as the second one. Based on the connection (or not) you must get a hold of a user object that represents the currently authenticated user in your application. The only requirement for the user object is that it **has to have** an `ìd` property and it must be unique. After you have that object you simply pass it to `register` and the user is now connected. In case you determine that the connection is coming from an unauthenticated user you can call `register(false)` to terminate the connection.
+By default, Base does not allow users to send messages before they have been authenticated and the authenticate callable is where the magic happens. It gets called whenever a new connection is made to the websocket server. You get a [connection](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket) instance as the first parameter and a `register` callable as the second one. Based on the connection (or not) you must get a hold of a user object that represents the currently authenticated user in your application. The only requirement for the user object is that it **has to have** an `ìd` property and it must be unique. After you have that object you simply pass it to `register` and the user is now connected. In case you determine that the connection is coming from an unauthenticated user you can call `register(connection, false)` to terminate the connection.
 
 *Note*: You can create a user management system within Base and still have it working perfectly fine, but that's not its purpose.
 
