@@ -1,3 +1,4 @@
+var http = require("http");
 var ws = require("ws");
 var users = require("./user-manager");
 var log = require("./simple-logger").log;
@@ -13,27 +14,35 @@ module.exports = {
       users.get(u).send(message);
     }
   },
-  run: function(options) {
+  run: function(provided) {
     var base = this;
 
-    options.actions = Object.assign({
-      path: require('path').dirname(process.argv[1]) + "/actions",
-      public: []
-    }, options.actions || {});
-
-    options = Object.assign({
+    var options = Object.assign({
       port: 9000,
+      http: function() {},
       authenticate: function(connection, register) {
         throw "Please provide a function with key [authenticate] when running Base.";
       },
       onLastConnectionClosed: function(user) {
         // this will run when a connection gets closed and there are no more connections from this user.
       },
-    }, options);
+    }, provided);
+
+    options.actions = Object.assign({
+      path: require('path').dirname(process.argv[1]) + "/actions",
+      public: []
+    }, options.actions || {});
+
+    var httpServer = http.createServer(options.http);
 
     var server = new ws.Server({
-      port: options.port
-    })
+      port: provided.http ? null : options.port,
+      server: httpServer
+    });
+
+    httpServer.listen(options.port, function() {
+      log("system", "Server is listening on port " + options.port);
+    });
 
     function register(connection, user) {
       try {
@@ -99,7 +108,6 @@ module.exports = {
       conn.on("close", onClose);
     });
 
-    log("system", "Server listening on port " + options.port);
     return server;
   }
 };
