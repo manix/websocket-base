@@ -9,21 +9,22 @@ module.exports = {
   users: users,
   clients: clients,
   Message: Message,
-  broadcast: function(message) {
+  broadcast: function (message) {
     for (var u in users.all()) {
       users.get(u).send(message);
     }
   },
-  run: function(provided) {
+  run: function (provided) {
     var base = this;
 
     var options = Object.assign({
       port: 9000,
-      http: function() {},
-      authenticate: function(connection, register) {
+      http: function () {},
+      ssl: null,
+      authenticate: function (connection, register) {
         throw "Please provide a function with key [authenticate] when running Base.";
       },
-      onLastConnectionClosed: function(user) {
+      onLastConnectionClosed: function (user) {
         // this will run when a connection gets closed and there are no more connections from this user.
       },
     }, provided);
@@ -33,14 +34,18 @@ module.exports = {
       public: []
     }, options.actions || {});
 
-    var httpServer = http.createServer(options.http);
+    if (options.ssl) {
+      var httpServer = require("https").createServer(options.ssl, options.http);
+    } else {
+      var httpServer = require("http").createServer(options.http);
+    }
 
     var server = new ws.Server({
       port: provided.http ? null : options.port,
       server: httpServer
     });
 
-    httpServer.listen(options.port, function() {
+    httpServer.listen(options.port, function () {
       log("system", "Server is listening on port " + options.port);
     });
 
@@ -98,7 +103,7 @@ module.exports = {
       clients.free(this);
     }
 
-    server.on('connection', function(conn) {
+    server.on('connection', function (conn) {
       log("system", "Incoming connection, assigned id: " + clients.assign(conn));
       log("system", "Beginning authentication for " + conn.id);
 
