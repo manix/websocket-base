@@ -5,10 +5,27 @@ var log = require("./simple-logger").log;
 var clients = require("./client-manager");
 var Message = require("./transport").Message;
 
+var listeners = {};
+
 module.exports = {
   users: users,
   clients: clients,
   Message: Message,
+  awaitReply: function (message, listener, timeout) {
+    var id = message.id || (Date.now() + "-" + Math.random());
+
+    message.id = id;
+
+    if (listeners[id]) {
+      log("system", "Error: already listening for a message with id " + id);
+    } else {
+      listeners[id] = listener;
+
+      setTimeout(function () {
+        delete(listeners[id]);
+      }, (timeout || 30000));
+    }
+  },
   broadcast: function (message) {
     for (var u in users.all()) {
       users.get(u).send(message);
@@ -20,7 +37,6 @@ module.exports = {
     var options = Object.assign({
       port: 9000,
       http: function () {},
-      ssl: null,
       authenticate: function (connection, register) {
         throw "Please provide a function with key [authenticate] when running Base.";
       },
@@ -34,11 +50,7 @@ module.exports = {
       public: []
     }, options.actions || {});
 
-    if (options.ssl) {
-      var httpServer = require("https").createServer(options.ssl, options.http);
-    } else {
-      var httpServer = require("http").createServer(options.http);
-    }
+    var httpServer = http.createServer(options.http);
 
     var server = new ws.Server({
       port: provided.http ? null : options.port,
@@ -75,10 +87,6 @@ module.exports = {
     function onMessage(message) {
       try {
         var [command, body, id] = JSON.parse(message);
-
-        if (!command) {
-          throw "Invalid message";
-        }
       } catch (e) {
         return log(this.id, "Invalid message recieved.");
       }
@@ -88,10 +96,18 @@ module.exports = {
         return this.close();
       }
 
-      command = command.replace("..", "");
-
       try {
-        require(options.actions.path + "/" + command).call(base, this, new Message(command, body, id));
+        var action;
+
+        if (listeners[id]) {
+          action = listeners[id];
+        } else {
+          command = command.replace("..", "");
+
+          action = require(options.actions.path + "/" + command);
+        }
+
+        action.call(base, this, new Message(command, body, id));
       } catch (e) {
         log(this.id, e);
       }
