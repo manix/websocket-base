@@ -1,5 +1,5 @@
 var http = require("http");
-var conn = require("ws");
+var ws = require("ws");
 var users = require("./user-manager");
 var log = require("./simple-logger").log;
 var clients = require("./client-manager");
@@ -57,7 +57,7 @@ module.exports = {
       var httpServer = require("http").createServer(options.http);
     }
 
-    var server = new conn.Server({
+    var server = new ws.Server({
       port: provided.http ? null : options.port,
       server: httpServer
     });
@@ -128,7 +128,7 @@ module.exports = {
       this.isAlive = true;
     }
 
-    const interval = setInterval(function () {
+    var interval = setInterval(function () {
       server.clients.forEach(function (conn) {
         if (conn.isAlive === false) {
           return conn.terminate();
