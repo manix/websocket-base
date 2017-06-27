@@ -1,5 +1,5 @@
 var http = require("http");
-var ws = require("ws");
+var conn = require("ws");
 var users = require("./user-manager");
 var log = require("./simple-logger").log;
 var clients = require("./client-manager");
@@ -37,12 +37,13 @@ module.exports = {
     var options = Object.assign({
       port: 9000,
       http: function () {},
+      ssl: null,
       authenticate: function (connection, register) {
         throw "Please provide a function with key [authenticate] when running Base.";
       },
       onLastConnectionClosed: function (user) {
         // this will run when a connection gets closed and there are no more connections from this user.
-      },
+      }
     }, provided);
 
     options.actions = Object.assign({
@@ -50,9 +51,13 @@ module.exports = {
       public: []
     }, options.actions || {});
 
-    var httpServer = http.createServer(options.http);
+    if (options.ssl) {
+      var httpServer = require("https").createServer(options.ssl, options.http);
+    } else {
+      var httpServer = require("http").createServer(options.http);
+    }
 
-    var server = new ws.Server({
+    var server = new conn.Server({
       port: provided.http ? null : options.port,
       server: httpServer
     });
@@ -119,7 +124,22 @@ module.exports = {
       clients.free(this);
     }
 
-    server.on('connection', function (conn) {
+    function heartbeat() {
+      this.isAlive = true;
+    }
+
+    const interval = setInterval(function () {
+      server.clients.forEach(function (conn) {
+        if (conn.isAlive === false) {
+          return conn.terminate();
+        }
+
+        conn.isAlive = false;
+        conn.ping('', false, true);
+      });
+    }, 30000);
+
+    function onOpen(conn) {
       log("system", "Incoming connection, assigned id: " + clients.assign(conn));
       log("system", "Beginning authentication for " + conn.id);
 
@@ -127,7 +147,12 @@ module.exports = {
 
       conn.on('message', onMessage);
       conn.on("close", onClose);
-    });
+
+      conn.isAlive = true;
+      conn.on('pong', heartbeat);
+    }
+
+    server.on('connection', onOpen);
 
     return server;
   }
