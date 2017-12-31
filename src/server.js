@@ -1,7 +1,7 @@
 var http = require("http");
 var ws = require("ws");
 var users = require("./user-manager");
-var log = require("./simple-logger").log;
+var logger = require("loglevel");
 var clients = require("./client-manager");
 var Message = require("./transport").Message;
 
@@ -35,6 +35,7 @@ module.exports = {
     var base = this;
 
     var options = Object.assign({
+      logging: "info",
       port: 9000,
       http: function () {},
       ssl: null,
@@ -45,6 +46,8 @@ module.exports = {
         // this will run when a connection gets closed and there are no more connections from this user.
       }
     }, provided);
+
+    logger.setLevel(options.logging);
 
     options.actions = Object.assign({
       path: require('path').dirname(process.argv[1]) + "/actions",
@@ -58,12 +61,11 @@ module.exports = {
     }
 
     var server = new ws.Server({
-      port: provided.http ? null : options.port,
       server: httpServer
     });
 
     httpServer.listen(options.port, function () {
-      log("system", "Server is listening on port " + options.port);
+      logger.info("Server is listening on port " + options.port);
     });
 
     function register(connection, user) {
@@ -76,14 +78,14 @@ module.exports = {
           throw "Can not bind client " + connection.id + " to a user - bad readyState.";
         }
 
-        log("system", "Client " + connection.id + " authenticated with id " + user.id);
+        logger.debug(connection.id, "Client authenticated with id " + user.id);
 
         users.register(user, connection);
 
         connection.send(new Message("authenticated", user).toString());
       } catch (e) {
         if (e === "not-auth") {
-          log("system", "Client " + connection.id + " is not logged in, closing connection.");
+          logger.debug(connection.id, "Client is not logged in, closing connection.");
           return connection.close();
         }
       }
@@ -93,11 +95,11 @@ module.exports = {
       try {
         var [command, body, id] = JSON.parse(message);
       } catch (e) {
-        return log(this.id, "Invalid message recieved.");
+        return logger.debug(this.id, "Invalid message recieved.");
       }
 
       if (!this.user && options.actions.public.indexOf(command) < 0) {
-        log("system", "Client " + this.id + " tried to send a message before being authenticated - closing connection.");
+        logger.debug(this.id, "Client tried to send a message before being authenticated - closing connection.");
         return this.close();
       }
 
@@ -114,12 +116,12 @@ module.exports = {
 
         action.call(base, this, new Message(command, body, id));
       } catch (e) {
-        log(this.id, e);
+        logger.debug(this.id, e);
       }
     }
 
     function onClose() {
-      log(this.id, "Connection closed.");
+      logger.debug(this.id, "Connection closed.");
       users.closed(this, options.onLastConnectionClosed);
       clients.free(this);
     }
@@ -140,8 +142,7 @@ module.exports = {
     }, 30000);
 
     function onOpen(conn) {
-      log("system", "Incoming connection, assigned id: " + clients.assign(conn));
-      log("system", "Beginning authentication for " + conn.id);
+      logger.debug(clients.assign(conn), "Incoming connection");
 
       options.authenticate(conn, register);
 

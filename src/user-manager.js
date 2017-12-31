@@ -1,4 +1,4 @@
-var logger = require("./simple-logger");
+var logger = require("loglevel");
 
 /*
  * All connected users
