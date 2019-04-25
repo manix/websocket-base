@@ -39,8 +39,8 @@ class User {
   }
 
   unbindConnection(conn) {
-    delete(this.connections[conn.id]);
-    delete(conn.user);
+    delete (this.connections[conn.id]);
+    delete (conn.user);
 
     logger.log("user-manager", "Unbound client " + conn.id + " from " + this);
   }
@@ -64,7 +64,7 @@ module.exports = {
   /*
    * Register a new user in the memory database from session data.
    */
-  register: function(data, connection) {
+  register: function (data, connection) {
     if (!data.id) {
       throw "Can not register user without id";
     }
@@ -94,29 +94,25 @@ module.exports = {
   /*
    * Get a user from memory.
    */
-  get: function(id) {
+  get: function (id) {
     return users[id];
   },
-  all: function() {
+  all: function () {
     return users;
   },
-  /*
-   * Must be called when a connection gets closed.
-   * If lastCallback is provided then it will be called ONLY IF the closed
-   * connection was the only one currently maintained for this user (i.e. no
-   * more connections from this user exist).
-   */
-  closed: function(conn, lastCallback) {
+
+  closed: function (conn) {
     if (!conn.user) {
       return;
     }
 
-    delete(conn.user.connections[conn.id]);
+    delete (conn.user.connections[conn.id]);
 
     if (Object.keys(conn.user.connections).length === 0) {
 
-      delete(users[conn.user.id]);
-      lastCallback(conn.user)
+      delete (users[conn.user.id]);
+
+      return true;
     }
   }
 };

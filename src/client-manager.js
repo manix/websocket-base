@@ -19,8 +19,6 @@ module.exports = {
       id = generateId(id);
     }
 
-    var temp = connection.id;
-
     clients[id] = connection;
     connection.id = id;
 

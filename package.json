@@ -1,10 +1,10 @@
 {
   "name": "websocket-base",
-  "version": "2.2.2",
+  "version": "3.0.0",
   "description": "A websocket server foundation.",
   "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/server"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,11 @@
   },
   "homepage": "https://github.com/manix/websocket-base#readme",
   "dependencies": {
+    "bluebird": "^3.5.2",
     "loglevel": "^1.6.0",
     "ws": "^2.2.2"
+  },
+  "peerDependencies": {
+    "redis": "^2.8.0"
   }
 }

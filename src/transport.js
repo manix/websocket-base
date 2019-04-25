@@ -1,10 +1,10 @@
 /*
  * Overwrite the default send method of `ws` to accept our Message class.
  */
-(function(websocket) {
+(function (websocket) {
   var send = websocket.prototype.send;
 
-  websocket.prototype.send = function(data, ...x) {
+  websocket.prototype.send = function (data, ...x) {
 
     if (data instanceof Message) {
       data = data.toString();
