@@ -35,14 +35,14 @@ class User {
     this.connections[conn.id] = conn;
     conn.user = this;
 
-    logger.log("user-manager", "Bound client " + conn.id + " to " + this);
+    logger.info("<user-manager>", "Bound client " + conn.id + " to " + this);
   }
 
   unbindConnection(conn) {
     delete (this.connections[conn.id]);
     delete (conn.user);
 
-    logger.log("user-manager", "Unbound client " + conn.id + " from " + this);
+    logger.info("<user-manager>", "Unbound client " + conn.id + " from " + this);
   }
 
   /*
@@ -50,7 +50,7 @@ class User {
    */
   send(message) {
     for (var i in this.connections) {
-      logger.log("system", "Sending message to " + this.connections[i].id);
+      logger.info("<user-manager>", "Sending message to " + this.connections[i].id);
       this.connections[i].send(message);
     }
   }

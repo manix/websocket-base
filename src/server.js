@@ -82,7 +82,7 @@ module.exports = {
             throw "Can not bind client " + connection.id + " to a user, connection seems to be closing.";
           }
 
-          logger.debug(connection.id, "Client authenticated with id " + user.id);
+          logger.debug("<client-" + connection.id + ">", "Client authenticated with id " + user.id);
 
           users.register(user, connection);
 
@@ -132,7 +132,7 @@ module.exports = {
       function onClose() {
         let uid = this.user.id;
 
-        logger.debug(this.id, "Connection closed.");
+        logger.debug("<client-" + this.id + ">", "Connection closed.");
         clients.free(this);
 
         if (this.user) {
@@ -160,7 +160,7 @@ module.exports = {
       }, options.pingInterval);
 
       server.on('connection', function onOpen(conn) {
-        logger.debug(clients.assign(conn), "Incoming connection");
+        logger.debug("<client-" + clients.assign(conn) + ">", "Incoming connection");
 
         options.authenticate(conn, register);
 

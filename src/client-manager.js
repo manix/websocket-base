@@ -25,7 +25,7 @@ module.exports = {
     return connection.id;
   },
   free: function(connection) {
-    logger.log("client-manager", "Freeing id " + connection.id);
+    logger.info("<client-manager>", "Freeing id " + connection.id);
     delete(clients[connection.id]);
   }
 };
