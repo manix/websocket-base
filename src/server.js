@@ -1,10 +1,9 @@
-var http = require("http");
 var ws = require("ws");
 var users = require("./user-manager");
 var logger = require("loglevel");
 var clients = require("./client-manager");
 var Message = require("./transport").Message;
-var redis = require("./redis-store");
+var redis = require("./stores/redis");
 var listeners = require("./store-events")
 
 // var listeners = {};
@@ -29,8 +28,8 @@ module.exports = {
   //     }, (timeout || 30000));
   //   }
   // },
-  broadcast: function (message) {
-    this.store.publish("/base/broadcast", message);
+  broadcast: function (message, uid = null) {
+    this.store.publish(uid ? ("/user/" + uid) : "/base/broadcast", message);
   },
   run: function (provided) {
     var options = Object.assign({
@@ -87,7 +86,7 @@ module.exports = {
 
           users.register(user, connection);
 
-          options.store.subscribe("/user/" + user.id);
+          options.store.subscribe("/user/" + user.id, relayMessage);
           options.store.hmset("/user/" + user.id, user);
           options.store.publish("/base/conn-open", user.id);
 
@@ -99,6 +98,14 @@ module.exports = {
             logger.error(connection.id, e);
           }
           return connection.close();
+        }
+      }
+
+      function relayMessage(message, channel) {
+        let uid = channel.split("/").pop();
+        let u = users.get(uid);
+        if (u) {
+          u.send(message);
         }
       }
 

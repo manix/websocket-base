@@ -11,13 +11,13 @@ exports.connect = function (url) {
   subscriber = redis.createClient(url);
   publisher = redis.createClient(url);
 
-  subscriber.on("message", function (channel, message) {
+  exports.on("message", function (channel, message) {
     if (exports.listeners.has(channel)) {
-      exports.listeners.get(channel).call(null, message);
+      exports.listeners.get(channel).call(null, message, channel);
     }
   });
 
-  subscriber.on("error", exports.onerror);
+  exports.on("error", exports.onerror);
   publisher.on("error", exports.onerror);
 
   return Promise.resolve(exports);
@@ -56,16 +56,18 @@ exports.incr = function (key, value = 1) {
   return publisher.incrby(key, value);
 }
 
-exports.subscribe = function (channel) {
+exports.subscribe = function (channel, callback) {
+  exports.listeners.set(channel, callback);
   return subscriber.subscribe(channel);
 }
 
 exports.unsubscribe = function (channel) {
+  exports.listeners.delete(channel);
   return subscriber.unsubscribe(channel);
 }
 
 exports.publish = function (channel, message) {
-  return publisher.publish(channel, JSON.stringify(message));
+  return publisher.publish(channel, message.toString());
 }
 
 exports.on = function (event, listener) {
