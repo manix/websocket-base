@@ -4,9 +4,10 @@ module.exports = function (store) {
   let base = require("./server");
 
   store.subscribe("/base/broadcast", function (message) {
-    for (let user of base.users.all()) {
-      user.send(message);
-    }
+    let users = base.users.all();
+    Object.keys(users).forEach(key => {
+      users[key].send(message);
+    });
   });
 
   store.subscribe("/base/conn-open", function (message) {
