@@ -1,3 +1,5 @@
+var logger = require("loglevel");
+
 module.exports = function (store) {
   let base = require("./server");
 
@@ -8,10 +10,10 @@ module.exports = function (store) {
   });
 
   store.subscribe("/base/conn-open", function (message) {
-    console.log("User arrived", message, process.pid);
+    logger.info("User arrived", message, process.pid);
   });
 
   store.subscribe("/base/conn-closed", function (message) {
-    console.log("User left", message, process.pid);
+    logger.info("User left", message, process.pid);
   });
 }
