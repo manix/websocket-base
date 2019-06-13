@@ -88,7 +88,7 @@ module.exports = {
 
           options.store.subscribe("/user/" + user.id, relayMessage);
           options.store.hmset("/user/" + user.id, user);
-          options.store.publish("/base/conn-open", user.id);
+          options.store.publish("/base/conn-open", connection);
 
           connection.send(new Message("authenticated", user).toString());
         } catch (e) {
@@ -136,7 +136,7 @@ module.exports = {
         clients.free(this);
 
         if (this.user) {
-          options.store.publish("/base/conn-closed", uid);
+          options.store.publish("/base/conn-closed", this);
           if (users.closed(this)) {
             // no more connections from this user, unlisten their channel
             options.store.unsubscribe("/user/" + uid);

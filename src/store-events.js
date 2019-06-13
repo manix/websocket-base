@@ -10,11 +10,11 @@ module.exports = function (store) {
     });
   });
 
-  store.subscribe("/base/conn-open", function (message) {
-    logger.info("User arrived", message, process.pid);
+  store.subscribe("/base/conn-open", function (conn) {
+    logger.info("User arrived", conn.user.id, process.pid);
   });
 
-  store.subscribe("/base/conn-closed", function (message) {
-    logger.info("User left", message, process.pid);
+  store.subscribe("/base/conn-closed", function (conn) {
+    logger.info("User left", conn.user.id, process.pid);
   });
 }
