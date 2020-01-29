@@ -3,7 +3,6 @@ var users = require("./user-manager");
 var logger = require("loglevel");
 var clients = require("./client-manager");
 var Message = require("./transport").Message;
-var redis = require("./stores/redis");
 var listeners = require("./store-events")
 
 // var listeners = {};
@@ -37,7 +36,7 @@ module.exports = {
       port: 9000,
       http: function () { },
       ssl: null,
-      store: redis,
+      store: require("./stores/memory"),
       authenticate: function (connection, register) {
         throw "Please provide a function with key [authenticate] when running Base.";
       },
@@ -130,12 +129,12 @@ module.exports = {
       }
 
       function onClose() {
-        let uid = this.user.id;
-
         logger.debug("<client-" + this.id + ">", "Connection closed.");
         clients.free(this);
-
+        
         if (this.user) {
+          let uid = this.user.id;
+
           options.store.publish("/base/conn-closed", uid);
           if (users.closed(this)) {
             // no more connections from this user, unlisten their channel
