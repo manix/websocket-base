@@ -4,8 +4,11 @@ module.exports = function (store) {
   let base = require("./server");
 
   store.subscribe("/base/broadcast", function (message) {
-    for (let user of base.users.all()) {
-      user.send(message);
+    let all = base.users.all();
+    for (let id in all) {
+      if (all[id]) {
+        all[id].send(message);
+      }
     }
   });
 
