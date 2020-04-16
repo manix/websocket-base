@@ -45,7 +45,8 @@ module.exports = {
 
     options.actions = Object.assign({
       path: require('path').dirname(process.argv[1]) + "/actions",
-      public: []
+      public: [],
+      resolver: (path, command) => require(path + "/" + command)
     }, options.actions || {});
 
 
@@ -119,10 +120,10 @@ module.exports = {
           logger.debug(this.id, "Client tried to send a message before being authenticated - closing connection.");
           return this.close();
         }
-
+        
         try {
           command = command.replace("..", "");
-          require(options.actions.path + "/" + command).call(base, this, new Message(command, body, id));
+          options.actions.resolver(options.actions.path, command).call(base, this, new Message(command, body, id));
         } catch (e) {
           logger.debug(this.id, e);
         }
