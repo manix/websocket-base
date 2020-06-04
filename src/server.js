@@ -151,6 +151,7 @@ module.exports = {
       var interval = setInterval(function () {
         server.clients.forEach(function (conn) {
           if (conn.isAlive === false) {
+            conn.emit("close");
             return conn.terminate();
           }
 
