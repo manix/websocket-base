@@ -148,6 +148,7 @@ module.exports = {
         this.isAlive = true;
       }
 
+      var noop = function () {};
       var interval = setInterval(function () {
         server.clients.forEach(function (conn) {
           if (conn.isAlive === false) {
@@ -156,13 +157,16 @@ module.exports = {
           }
 
           conn.isAlive = false;
-          conn.ping('', false, true);
+          conn.ping(noop);
         });
       }, options.pingInterval);
 
-      server.on('connection', function onOpen(conn) {
+      server.on('connection', function onOpen(conn, req) {
         logger.debug("<client-" + clients.assign(conn) + ">", "Incoming connection");
 
+        // keep compatibility with older ws versions
+        conn.upgradeReq = req;
+        
         options.authenticate(conn, register);
 
         conn.on('message', onMessage);

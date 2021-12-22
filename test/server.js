@@ -10,6 +10,8 @@ base.run({
       name: "Test user"
     });
 
+    console.log(connection.upgradeReq.headers);
+
     setTimeout(() => {
       base.broadcast(new base.Message("DGD", "BRAT"), 3);
     }, 5000)

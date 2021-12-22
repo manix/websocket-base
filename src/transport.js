@@ -12,7 +12,7 @@
 
     return send.call(this, data, ...x);
   };
-})(require("ws/lib/WebSocket"))
+})(require("ws/lib/websocket"))
 
 class Message {
   constructor(command, body, id) {
