@@ -40,7 +40,10 @@ module.exports = {
       authenticate: function (connection, register) {
         throw "Please provide a function with key [authenticate] when running Base.";
       },
-      pingInterval: 30000
+      pingInterval: 30000,
+      parser: function (message) {
+        return JSON.parse(message);
+      }
     }, provided);
 
     options.actions = Object.assign({
@@ -111,7 +114,7 @@ module.exports = {
 
       function onMessage(message) {
         try {
-          var [command, body, id] = JSON.parse(message);
+          var [command, body, id] = options.parser(message);
         } catch (e) {
           return logger.debug(this.id, "Invalid message recieved.");
         }
