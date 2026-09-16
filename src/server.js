@@ -27,6 +27,7 @@ module.exports = {
   //     }, (timeout || 30000));
   //   }
   // },
+  authMessage: true,
   broadcast: function (message, uid = null) {
     this.store.publish(uid ? ("/user/" + uid) : "/base/broadcast", message);
   },
@@ -93,7 +94,9 @@ module.exports = {
           options.store.hmset("/user/" + user.id, user);
           options.store.publish("/base/conn-open", user.id);
 
-          connection.send(new Message("authenticated", user).toString());
+          if (exports.authMessage) {
+            connection.send(new Message("authenticated", user).toString());
+          }
         } catch (e) {
           if (e === "not-auth") {
             logger.debug(connection.id, "Client is not logged in, closing connection.");
