@@ -27,12 +27,12 @@ module.exports = {
   //     }, (timeout || 30000));
   //   }
   // },
-  authMessage: true,
   broadcast: function (message, uid = null) {
     this.store.publish(uid ? ("/user/" + uid) : "/base/broadcast", message);
   },
   run: function (provided) {
     var options = Object.assign({
+      authMessage: true,
       logging: "info",
       port: 9000,
       http: function () { },
@@ -94,7 +94,7 @@ module.exports = {
           options.store.hmset("/user/" + user.id, user);
           options.store.publish("/base/conn-open", user.id);
 
-          if (exports.authMessage) {
+          if (options.authMessage) {
             connection.send(new Message("authenticated", user).toString());
           }
         } catch (e) {
